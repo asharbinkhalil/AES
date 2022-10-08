@@ -14,7 +14,6 @@ int main()
 	cout << "\n\t\t\t\t\t| -> Generate Keys.                    |";
 	cout << "\n\t\t\t\t\t/--------------------------------------/\n\n\n\n";
 
-	cout << "commit";
 	AES_Class a;
 	string dummyinput,input;
 	while (dummyinput.length() < 33)//exception handling for key length
