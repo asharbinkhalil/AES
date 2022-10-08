@@ -27,14 +27,22 @@ class AES_Class
 		, { 0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16 }
 	};
 public:
-	//--------------------------------------utilities functions--------------------------------
+	//--------------------------------------Utilities functions--------------------------------
 	string decToHexa(int n);
 	string ASCIItoHEX(string ascii);
 	string toHex(string bin);
 	string toBinary(const string& s);
 	string Xor_binaries(string bin1, string bin2);
+	void func();//designXshashkay
 	//-----------------------------------------------------------------------------------------
+	
 
+	//--------------------------------------Input functions------------------------------------
+	string keyInput();
+	string textInput();
+	//-----------------------------------------------------------------------------------------
+	 
+	
 	//--------------------------------------Key Generation-------------------------------------
 	string find_G(string w_last, int rc)
 	{
