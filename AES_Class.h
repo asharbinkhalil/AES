@@ -5,6 +5,7 @@
 using namespace std;
 class AES_Class
 {
+	int keysize;
 	string w[120];
 	string keys[15];
 	int sbox[16][16] =
@@ -27,8 +28,12 @@ class AES_Class
 		, { 0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16 }
 	};
 public:
+	void setKeysize(int size)
+	{
+		keysize = size;
+	}
+	void check();
 	//--------------------------------------Utilities functions--------------------------------
-	string decToHexa(int n);
 	string ASCIItoHEX(string ascii);
 	string toHex(string bin);
 	string toBinary(const string& s);
@@ -98,16 +103,24 @@ public:
 	}
 	void printKeys()
 	{
-		for (int i = 0; i < 15; i++)
-			cout << "\nKey " << i << " : "<<keys[i];
+		int n = 0;
+		if (keysize == 256)
+			n = 15;
+		else
+			n = 11;
+		for (int i = 0; i < n; i++)
+			cout << "\n\t\t\t\tKey " << i << (i < 10 ? " : " : ": ") << keys[i];
+		
 	}
 	void generate_round_keys(string key)
 	{
-		
-		
 		keys[0] = key;
 		int j = 0, count = 0;
-		int rounds = 0;
+		int rounds = 0,quads=0;
+		if (keysize == 256)
+			rounds = 14, quads = 7;
+		else
+			rounds = 10, quads=3;
 		for (int i = 0; i < key.length(); i++)
 		{
 			if (count < 8)
@@ -122,12 +135,12 @@ public:
 				i--;
 			}
 		}
-		int w_index = 0;
+		int w_index = 0,r=0;
 		int roundconst_c = 0;
 		count = 8;
 		int temp_length = 0;
 		string temp;
-		while (rounds < 14)
+		while (r < rounds)
 		{
 			j++;
 			w[j] = Xor_binaries(toBinary(find_G(w[j - 1], roundconst_c++)), toBinary(w[w_index++]));
@@ -143,7 +156,7 @@ public:
 			}
 			key = "";
 			key += w[j];
-			for (int i = 0; i < 7; i++)
+			for (int i = 0; i < quads; i++)
 			{
 				j++;
 				w[j] = Xor_binaries(toBinary(w[j - 1]), toBinary(w[w_index++]));
@@ -163,9 +176,8 @@ public:
 				if (w[j].length() == 8)
 					count++;
 			}
-			keys[rounds+1] = key;
-			rounds++;
-
+			keys[r+1] = key;
+			r++;
 		}
 	}
 	//-----------------------------------------------------------------------------------------
