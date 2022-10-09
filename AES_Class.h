@@ -2,6 +2,7 @@
 #include <iostream>
 #include<sstream>
 #include <bitset>
+#include <Windows.h>
 using namespace std;
 class AES_Class
 {
@@ -32,12 +33,13 @@ public:
 	{
 		keysize = size;
 	}
-	void check();
 	//--------------------------------------Utilities functions--------------------------------
 	string ASCIItoHEX(string ascii);
 	string toHex(string bin);
 	string toBinary(const string& s);
 	string Xor_binaries(string bin1, string bin2);
+	void printMatrix(string** arr);
+	int charHextoint(char c);
 	void func();//designXshashkay
 	//-----------------------------------------------------------------------------------------
 	
@@ -56,22 +58,13 @@ public:
 		reverse(w_last.begin(), w_last.end());
 		
 		string gw_last, byte_substituted;
-		char val, val2;
-		unsigned int myval, myval2;
 		for (int i = 0; i < w_last.length(); i += 2)
 		{
-			val = w_last[i];
-			val2 = w_last[i + 1];
-			std::stringstream ss;
-			ss << val;
-			ss >> std::hex >> myval;
-
-			std::stringstream ss2;
-			ss2 << val2;
-			ss2 >> std::hex >> myval2;
+			int val = charHextoint(w_last[i]);
+			int val2 = charHextoint(w_last[i+1]);
 
 			std::ostringstream sso;
-			sso << std::hex << sbox[myval][myval2];
+			sso << std::hex << sbox[val][val2];
 			string temp;
 			if (sso.str().length() == 1)
 			{
@@ -181,5 +174,97 @@ public:
 		}
 	}
 	//-----------------------------------------------------------------------------------------
-};
 
+	//-----------------------------------Generate State Matrix---------------------------------
+	string** GenerateStateMatrix(string str)
+	{
+		string** ptr = new string * [4];
+		for (int i = 0; i < 4; i++)
+			ptr[i] = new string[4];
+		for (int i = 0; i < 4; i++)
+			for (int j = 0; j < 4; j++)
+			{
+				ptr[j][i] = str.substr(i * 8 + j * 2, 2);
+			}
+		return ptr;
+	}
+	string** AddRoundKey(string plaintext,string key)
+	{
+		string** PTstateMat = GenerateStateMatrix(plaintext);
+		string** KeystateMat = GenerateStateMatrix(key);
+		string** stateMat = new string * [4];
+		for (int i = 0; i < 4; i++)
+			stateMat[i] = new string[4];
+
+		string temp;
+
+		for (int i = 0; i < 4; i++)
+		{
+			for (int j = 0; j < 4; j++)
+			{
+				temp= toHex(Xor_binaries(toBinary(PTstateMat[i][j]), toBinary(KeystateMat[i][j])));
+				if (temp.length() == 1)
+					temp = '0' + temp;
+				stateMat[i][j] = temp;
+			}
+		}
+		return stateMat;
+	}
+	//----------------------------------------------------------------------------------------- 
+	
+	//-------------------------------------Substitute Bytes------------------------------------
+	string** SubstituteBytes(string** arr)
+	{
+		int val, val2;
+		string** ptr = new string * [4], val3, byte_substituted;
+		for (int i = 0; i < 4; i++)
+			ptr[i] = new string[4];
+
+
+		for (int i = 0; i < 4; i++)
+		{
+			std::ostringstream sso;
+			for (int j = 0; j < 4; j++)
+			{
+				val3 = arr[i][j];
+				val = charHextoint(val3[0]);
+				val2 = charHextoint(val3[1]);
+				
+				sso << std::hex << sbox[val][val2];
+				if (sso.str().length() == 1)
+					sso.str() = "0" + sso.str();
+				else
+					byte_substituted += sso.str();
+				sso.str("");
+				sso.clear();
+				ptr[i][j] = byte_substituted;
+				byte_substituted = "";
+			}
+			sso.str("");
+			sso.clear();
+		}
+		return ptr;
+	}
+	//-----------------------------------------------------------------------------------------
+
+	//-------------------------------------Shift Rows------------------------------------------
+	void leftshift(string arr[], int size)
+	{
+		string temp = arr[0];
+		for (int i = 0; i < size - 1; i++)
+			arr[i] = arr[i + 1];
+		arr[size - 1] = temp;
+	}
+	void LeftShiftNtTime(string arr[], int size, int k)
+	{
+		for (int i = 0; i < k; i++)
+			leftshift(arr, size);
+	}
+	string** ShiftRows(string **D2)
+	{
+		for (int i = 0; i < 4; i++)
+			LeftShiftNtTime(D2[i], 4, i);
+		return D2;
+	}
+	//-----------------------------------------------------------------------------------------
+};

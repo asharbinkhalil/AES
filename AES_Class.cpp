@@ -1,7 +1,4 @@
 #include "AES_Class.h"
-#include <Windows.h>
-#include<iostream>
-using namespace std;
 string AES_Class::ASCIItoHEX(string ascii)
 {
 	stringstream ss;
@@ -102,8 +99,23 @@ void AES_Class::func()
 	cout << "\n\t\t\t\t\t| -> Generate Keys.                    |";
 	cout << "\n\t\t\t\t\t/--------------------------------------/\n\n\n\n";
 }
-void AES_Class::check()
+void AES_Class::printMatrix(string** arr)
 {
-	if (keysize == 256)
-		cout << keysize;
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+			cout << arr[i][j] << " ";
+		cout << "\n\t\t\t\t\t";
+	}
+}
+int AES_Class::charHextoint(char c)
+{
+	int val = 0;
+	if (c >= '0' && c <= '9')
+		val = c - 48;
+	if (c >= 'A' && c <= 'F')
+		val = c - 55;
+	else if (c >= 'a' && c <= 'f')
+		val = c - 87;
+	return val;
 }
