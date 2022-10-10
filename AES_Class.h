@@ -3,12 +3,17 @@
 #include<sstream>
 #include <bitset>
 #include <Windows.h>
+
 using namespace std;
 class AES_Class
 {
 	int keysize;
 	string w[60];
 	string keys[15];
+	string fixedMatrix[4][4] = { {"02","03","01","01"},
+					{"01","02","03","01"},
+					{"01","01","02","03"},
+					{"03","01","01","02"} };
 	int sbox[16][16] =
 	{
 		  { 0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76 }
@@ -32,6 +37,10 @@ public:
 	void setKeysize(int size)
 	{
 		keysize = size;
+	}
+	int getKeysize()
+	{
+		return keysize;
 	}
 	string* getKeys()
 	{
@@ -365,4 +374,63 @@ public:
 		return muli;
 	}
 	//-----------------------------------------------------------------------------------------
+	// 
+	//-------------------------------------Encrypt---------------------------------------------
+	void Encrypt(string key, string plaintext)
+	{
+		key = ASCIItoHEX(key);
+		plaintext = ASCIItoHEX(plaintext);
+		generate_round_keys(key);            //generating round keys AES-128(10), AES-256(16)
+		printKeys();
+
+		string** stateMatrix = AddRoundKey(plaintext, key);
+		cout << "\n\n\n\n\t\t\t\t\tState Matrix    Round 0 \n\t\t\t\t\t";
+		printMatrix(stateMatrix);
+
+
+		string** fixedMat = new string * [4];
+		for (int i = 0; i < 4; i++)
+			fixedMat[i] = new string[4];
+		for (int i = 0; i < 4; i++)
+			for (int j = 0; j < 4; j++)
+				fixedMat[i][j] = fixedMatrix[i][j];
+		////-------------------------------------Round 1-------------------------------------------------
+		string** ss = SubstituteBytes(stateMatrix);
+		cout << "\n\n\n\n\t\t\t\t\tByte Sustituted Round 1 \n\t\t\t\t\t";
+		printMatrix(ss);
+		cout << "\n\n\n\n\t\t\t\t\tLeft Shifted    Round 1 \n\t\t\t\t\t";
+		string** shiftedrows = ShiftRows(ss);
+		printMatrix(shiftedrows);
+
+		cout << "\n\n\n\n\t\t\t\t\tMixed Columns   Round 1 \n\t\t\t\t\t";
+		printMatrix(mixColumns(fixedMat, shiftedrows));
+		cout << "\n\n\n\n\t\t\t\t\tAdd Round Key   Round 1 \n\t\t\t\t\t";
+		string** rk = AddRoundKey(twoDto1dCV(mixColumns(fixedMat, shiftedrows)), getKeys()[1]);
+		printMatrix(rk);
+		///--------------------------------------Round 2-------------------------------------------------
+		int v = 0;
+		if (getKeysize() == 256)
+			v = 14;
+		else
+			v = 9;
+		for (int i = 2; i <= v; i++)
+		{
+			cout << "\n\n\n\n\t\t\t\t\tByte Sustituted Round " << i << "\n\t\t\t\t\t";
+			printMatrix(SubstituteBytes(rk));
+			cout << "\n\n\n\n\t\t\t\t\tLeft Shifted    Round " << i << " \n\t\t\t\t\t";
+			printMatrix(ShiftRows(SubstituteBytes(rk)));
+			cout << "\n\n\n\n\t\t\t\t\tMixed Columns   Round " << i << " \n\t\t\t\t\t";
+			printMatrix(mixColumns(fixedMat, ShiftRows(SubstituteBytes(rk))));
+			cout << "\n\n\n\n\t\t\t\t\tAdd Round Key   Round " << i << " \n\t\t\t\t\t";
+			rk = AddRoundKey(twoDto1dCV(mixColumns(fixedMat, ShiftRows(SubstituteBytes(rk)))), getKeys()[i]);
+			printMatrix(rk);
+		}
+		cout << "\n\n\n\n\t\t\t\t\tByte Sustituted    Round last \n\t\t\t\t\t";
+		printMatrix(SubstituteBytes(rk));
+		cout << "\n\n\n\n\t\t\t\t\tLeft Shifted       Round last \n\t\t\t\t\t";
+		printMatrix(ShiftRows(SubstituteBytes(rk)));
+		cout << "\n\n\n\n\t\t\t\t\tAdd Round Key      Round last \n\t\t\t\t\t";
+		rk = AddRoundKey(twoDto1dCV(ShiftRows(SubstituteBytes(rk))), getKeys()[10]);
+		printMatrix(rk);
+	}
 };
