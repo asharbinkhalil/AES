@@ -21,6 +21,16 @@ string AES_Class::toHex(string bin)
 	ss << hex << result;
 
 	string hexVal(ss.str());
+	if (hexVal.length() == 1)
+		hexVal = "0" + hexVal;
+	
+	//if (hexVal.length()== 3)
+	//{
+	//	hexVal = hexVal.substr(1, 2);
+	//	hexVal = toHex(Xor_binaries(toBinary(hexVal), toBinary("1b")));
+	//	cout << "|" << hexVal << "|\n";
+	//}
+	
 	return hexVal;
 }
 string AES_Class::toBinary(const string& s) {
@@ -34,7 +44,8 @@ string AES_Class::toBinary(const string& s) {
 		for (int8_t j = 3; j >= 0; --j)
 			out.push_back((n & (1 << j)) ? '1' : '0');
 	}
-
+	if (out.length() < 8)
+		return "0000" + out;
 	return out;
 }
 string AES_Class::Xor_binaries(string bin1, string bin2)

@@ -40,10 +40,9 @@ public:
 	string Xor_binaries(string bin1, string bin2);
 	void printMatrix(string** arr);
 	int charHextoint(char c);
-	void func();//designXshashkay
+	void func();
 	//-----------------------------------------------------------------------------------------
 	
-
 	//--------------------------------------Input functions------------------------------------
 	string keyInput();
 	string textInput();
@@ -296,5 +295,62 @@ public:
 	}
 	//-----------------------------------------------------------------------------------------
 
-	//-------------------------------------
+	//-------------------------------------Mix Column------------------------------------------
+	string** mixColumns(string mt1[][4], string** mt2)
+	{
+		string** muli = new string * [4];
+		for (int i = 0; i < 4; i++)
+			muli[i] = new string[4];
+		string mul[4][4];
+		string temp, temp2, t1;
+		for (int i = 0; i < 4; i++)
+		{
+			if (i == 1)
+				i = i;
+			for (int j = 0; j < 4; j++)
+			{
+				mul[i][j] = "";
+				if (i == 1)
+					i = i;
+				for (int k = 0; k < 4; k++)
+				{
+					t1 = "";
+					temp2 = "";
+					if (mt1[i][k] == "01")
+						t1 = mt2[k][j];
+					if (mt1[i][k] == "02")
+					{
+						temp = toBinary(mt2[k][j]);
+						for (int i = 1; i < temp.length(); i++)
+							temp2 += temp[i];
+						temp2 += "0";
+						t1 = toHex(temp2);
+						if (temp[0] == '1')
+							t1 = toHex(Xor_binaries(toBinary(t1), "00011011"));
+					}
+					if (mt1[i][k] == "03")
+					{
+						temp = toBinary(mt2[k][j]);
+
+						for (int i = 1; i < temp.length(); i++)
+							temp2 += temp[i];
+						temp2 += "0";
+						t1 = toHex(temp2);
+						t1 = toHex(Xor_binaries(toBinary(t1), toBinary(mt2[k][j])));
+						if (temp[0] == '1')
+							t1 = toHex(Xor_binaries(toBinary(t1), "00011011"));
+					}
+					if (!mul[i][j].size())
+						mul[i][j] = t1;
+					else
+						mul[i][j] = toHex(Xor_binaries(toBinary(t1), toBinary(mul[i][j])));
+				}
+			}
+		}
+		for (int i = 0; i < 4; i++)
+			for (int j = 0; j < 4; j++)
+				muli[i][j] = mul[i][j];
+		return muli;
+	}
+	//-----------------------------------------------------------------------------------------
 };
