@@ -7,7 +7,7 @@ using namespace std;
 class AES_Class
 {
 	int keysize;
-	string w[120];
+	string w[60];
 	string keys[15];
 	int sbox[16][16] =
 	{
@@ -51,6 +51,29 @@ public:
 	 
 	
 	//--------------------------------------Key Generation-------------------------------------
+	string substiteBytesW(string w_last)
+	{
+		string  byte_substituted;
+		for (int i = 0; i < w_last.length(); i += 2)
+		{
+			int val = charHextoint(w_last[i]);
+			int val2 = charHextoint(w_last[i + 1]);
+
+			std::ostringstream sso;
+			sso << std::hex << sbox[val][val2];
+			string temp;
+			if (sso.str().length() == 1)
+			{
+				temp = '0';
+				temp += sso.str();
+				byte_substituted += temp;
+			}
+			else
+				byte_substituted += sso.str();
+		}
+		return byte_substituted;
+
+	}
 	string find_G(string w_last, int rc)
 	{
 		reverse(w_last.begin(), w_last.begin() + 2);
@@ -107,13 +130,12 @@ public:
 	}
 	void generate_round_keys(string key)
 	{
-		keys[0] = key;
 		int j = 0, count = 0;
-		int rounds = 0,quads=0;
+		int rounds = 0, quads = 0, w_count=0;
 		if (keysize == 256)
-			rounds = 14, quads = 7;
+			rounds = 14, quads = 7,w_count=60;
 		else
-			rounds = 10, quads=3;
+			rounds = 10, quads = 3,w_count=44;
 		for (int i = 0; i < key.length(); i++)
 		{
 			if (count < 8)
@@ -128,12 +150,12 @@ public:
 				i--;
 			}
 		}
-		int w_index = 0,r=0;
+		int w_index = 0, r = 0;
 		int roundconst_c = 0;
 		count = 8;
 		int temp_length = 0;
-		string temp;
-		while (r < rounds)
+		string temp,temp2;
+		while (j < w_count)
 		{
 			j++;
 			w[j] = Xor_binaries(toBinary(find_G(w[j - 1], roundconst_c++)), toBinary(w[w_index++]));
@@ -147,15 +169,17 @@ public:
 					w[j] += '0';
 				w[j] += temp;
 			}
-			key = "";
-			key += w[j];
 			for (int i = 0; i < quads; i++)
 			{
 				j++;
-				w[j] = Xor_binaries(toBinary(w[j - 1]), toBinary(w[w_index++]));
+				if (i == 3 && keysize==256)
+					temp2 = substiteBytesW(w[j - 1]);
+				else
+					temp2 = w[j - 1];
+				w[j] = Xor_binaries(toBinary(temp2), toBinary(w[w_index++]));
 				w[j] = toHex(w[j]);
 				
-				 temp_length = w[j].length();
+				temp_length = w[j].length();
 
 				if (temp_length < 8)
 				{
@@ -165,13 +189,17 @@ public:
 						w[j] += '0';
 					w[j] += temp;
 				}
-				key += w[j];
 				if (w[j].length() == 8)
 					count++;
 			}
-			keys[r+1] = key;
-			r++;
 		}
+		int k = 0;
+		for (int i = 0; i < 15; i++)
+			for (int j = 0; j < 4; j++)
+				keys[i] ="";
+		for (int i = 0; i < 15; i++)
+			for (int j = 0; j < 4; j++, k++)
+				keys[i] += w[k];
 	}
 	//-----------------------------------------------------------------------------------------
 
@@ -267,4 +295,6 @@ public:
 		return D2;
 	}
 	//-----------------------------------------------------------------------------------------
+
+	//-------------------------------------
 };
