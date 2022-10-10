@@ -33,6 +33,10 @@ public:
 	{
 		keysize = size;
 	}
+	string* getKeys()
+	{
+		return keys;
+	}
 	//--------------------------------------Utilities functions--------------------------------
 	string ASCIItoHEX(string ascii);
 	string toHex(string bin);
@@ -40,6 +44,14 @@ public:
 	string Xor_binaries(string bin1, string bin2);
 	void printMatrix(string** arr);
 	int charHextoint(char c);
+	string twoDto1dCV(string** arr)
+	{
+		string oned;
+		for (int i = 0; i < 4; i++)
+			for (int j = 0; j < 4; j++)
+				oned += arr[j][i];
+		return oned;
+	}
 	void func();
 	//-----------------------------------------------------------------------------------------
 	
@@ -237,12 +249,14 @@ public:
 		}
 		return stateMat;
 	}
+
 	//----------------------------------------------------------------------------------------- 
 	
 	//-------------------------------------Substitute Bytes------------------------------------
 	string** SubstituteBytes(string** arr)
 	{
-		int val, val2;
+		int val, val2 ;
+		string tempo;
 		string** ptr = new string * [4], val3, byte_substituted;
 		for (int i = 0; i < 4; i++)
 			ptr[i] = new string[4];
@@ -258,17 +272,15 @@ public:
 				val2 = charHextoint(val3[1]);
 				
 				sso << std::hex << sbox[val][val2];
-				if (sso.str().length() == 1)
-					sso.str() = "0" + sso.str();
-				else
-					byte_substituted += sso.str();
+				tempo = sso.str();
+				if (tempo.length() == 1)
+					tempo = '0' + sso.str();
+				byte_substituted += tempo;
 				sso.str("");
 				sso.clear();
 				ptr[i][j] = byte_substituted;
 				byte_substituted = "";
 			}
-			sso.str("");
-			sso.clear();
 		}
 		return ptr;
 	}
@@ -296,7 +308,7 @@ public:
 	//-----------------------------------------------------------------------------------------
 
 	//-------------------------------------Mix Column------------------------------------------
-	string** mixColumns(string mt1[][4], string** mt2)
+	string** mixColumns(string **mt1, string** mt2)
 	{
 		string** muli = new string * [4];
 		for (int i = 0; i < 4; i++)
