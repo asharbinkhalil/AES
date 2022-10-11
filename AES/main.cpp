@@ -1,9 +1,9 @@
-#include "AES_Class.h"
+#include "Encrypt.h"
 #include<iostream>
 using namespace std;
 int main()
 {
-	AES_Class a;
+	AES_Encrypt a;
 	a.func();                              //intro :)
 	int ks = 0;
 	cout << "\n\t\t\t\t\tEnter key Size:  (128 or 256)\n\t\t\t\t\t";

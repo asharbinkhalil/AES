@@ -1,19 +1,19 @@
 #include "Encrypt.h"
 //--------------------------------------Getter Setters-------------------------------------
-void AES_Class::setKeysize(int size)
+void AES_Encrypt::setKeysize(int size)
 {
 	keysize = size;
 }
-int AES_Class::getKeysize()
+int AES_Encrypt::getKeysize()
 {
 	return keysize;
 }
-string* AES_Class::getKeys()
+string* AES_Encrypt::getKeys()
 {
 	return keys;
 }
 //--------------------------------------Utilities functions--------------------------------
-string AES_Class::ASCIItoHEX(string ascii)
+string AES_Encrypt::ASCIItoHEX(string ascii)
 {
 	stringstream ss;
 	string hexs;
@@ -23,7 +23,7 @@ string AES_Class::ASCIItoHEX(string ascii)
 	hexs = ss.str();
 	return hexs;
 }
-string AES_Class::toHex(string bin)
+string AES_Encrypt::toHex(string bin)
 {
 	int result = 0;
 	for (size_t count = 0; count < bin.length(); ++count)
@@ -47,7 +47,7 @@ string AES_Class::toHex(string bin)
 	
 	return hexVal;
 }
-string AES_Class::toBinary(const string& s) {
+string AES_Encrypt::toBinary(const string& s) {
 	string out;
 	for (auto i : s) {
 		uint8_t n;
@@ -62,7 +62,7 @@ string AES_Class::toBinary(const string& s) {
 		return "0000" + out;
 	return out;
 }
-string AES_Class::Xor_binaries(string bin1, string bin2)
+string AES_Encrypt::Xor_binaries(string bin1, string bin2)
 {
 	string output;
 	for (int i = 0; i < bin1.length(); i++)
@@ -72,7 +72,7 @@ string AES_Class::Xor_binaries(string bin1, string bin2)
 	return output;
 }
 
-void AES_Class::func()
+void AES_Encrypt::func()
 {
 	cout << "\t\t\t\t------------------- ASHAR KHALIL----------------------\n";
 	cout << "\t\t\t\t-------------	      20K - 1724         --------------\n";
@@ -84,16 +84,17 @@ void AES_Class::func()
 	cout << "\n\t\t\t\t\t| -> Generate Keys.                    |";
 	cout << "\n\t\t\t\t\t/--------------------------------------/\n\n\n\n";
 }
-void AES_Class::printMatrix(string** arr)
+void AES_Encrypt::printMatrix(string** arr)
 {
 	for (int i = 0; i < 4; i++)
 	{
 		for (int j = 0; j < 4; j++)
-			cout << arr[i][j] << " ";
-		cout << "\n\t\t\t\t\t";
+			cout << arr[j][i];
+		
 	}
+	cout << "\n\t\t\t\t\t";
 }
-int AES_Class::charHextoint(char c)
+int AES_Encrypt::charHextoint(char c)
 {
 	int val = 0;
 	if (c >= '0' && c <= '9')
@@ -104,7 +105,7 @@ int AES_Class::charHextoint(char c)
 		val = c - 87;
 	return val;
 }
-string AES_Class::twoDto1dCV(string** arr)
+string AES_Encrypt::twoDto1dCV(string** arr)
 {
 	string oned;
 	for (int i = 0; i < 4; i++)
@@ -116,7 +117,7 @@ string AES_Class::twoDto1dCV(string** arr)
 //-----------------------------------------------------------------------------------------
 
 //--------------------------------------Input functions------------------------------------
-string AES_Class::keyInput()
+string AES_Encrypt::keyInput()
 {
 	int n = 0;
 	if (keysize == 256)
@@ -139,7 +140,7 @@ string AES_Class::keyInput()
 		keyinput += dummyinput[i];
 	return keyinput;
 }
-string  AES_Class::textInput()
+string  AES_Encrypt::textInput()
 {
 	string dummyinput, textinput;
 	while (dummyinput.length() < 16)//exception handling for key length
@@ -159,7 +160,7 @@ string  AES_Class::textInput()
 }
 
 //--------------------------------------Key Generation-------------------------------------
-string AES_Class::substiteBytesW(string w_last)
+string AES_Encrypt::substiteBytesW(string w_last)
 {
 	string  byte_substituted;
 	for (int i = 0; i < w_last.length(); i += 2)
@@ -182,7 +183,7 @@ string AES_Class::substiteBytesW(string w_last)
 	return byte_substituted;
 
 }
-string AES_Class::find_G(string w_last, int rc)
+string AES_Encrypt::find_G(string w_last, int rc)
 {
 	reverse(w_last.begin(), w_last.begin() + 2);
 	reverse(w_last.begin() + 2, w_last.end());
@@ -225,7 +226,7 @@ string AES_Class::find_G(string w_last, int rc)
 	}
 	return gw_last;
 }
-void AES_Class::printKeys()
+void AES_Encrypt::printKeys()
 {
 	int n = 0;
 	if (keysize == 256)
@@ -236,7 +237,7 @@ void AES_Class::printKeys()
 		cout << "\n\t\t\t\tKey " << i << (i < 10 ? " : " : ": ") << keys[i];
 
 }
-void AES_Class::generate_round_keys(string key)
+void AES_Encrypt::generate_round_keys(string key)
 {
 	int j = 0, count = 0;
 	int rounds = 0, quads = 0, w_count = 0;
@@ -265,6 +266,9 @@ void AES_Class::generate_round_keys(string key)
 	string temp, temp2;
 	while (j < w_count)
 	{
+		if (roundconst_c == 8 && keysize == 256)
+			roundconst_c = 0;
+
 		j++;
 		w[j] = Xor_binaries(toBinary(find_G(w[j - 1], roundconst_c++)), toBinary(w[w_index++]));
 		w[j] = toHex(w[j]);
@@ -312,7 +316,7 @@ void AES_Class::generate_round_keys(string key)
 //-----------------------------------------------------------------------------------------
 
 //-----------------------------------ADD Round Key---------------------------------
-string** AES_Class::GenerateStateMatrix(string str)
+string** AES_Encrypt::GenerateStateMatrix(string str)
 {
 	string** ptr = new string * [4];
 	for (int i = 0; i < 4; i++)
@@ -324,7 +328,7 @@ string** AES_Class::GenerateStateMatrix(string str)
 		}
 	return ptr;
 }
-string** AES_Class::AddRoundKey(string plaintext, string key)
+string** AES_Encrypt::AddRoundKey(string plaintext, string key)
 {
 	string** PTstateMat = GenerateStateMatrix(plaintext);
 	string** KeystateMat = GenerateStateMatrix(key);
@@ -350,7 +354,7 @@ string** AES_Class::AddRoundKey(string plaintext, string key)
 //----------------------------------------------------------------------------------------- 
 
 //-------------------------------------Substitute Bytes------------------------------------
-string** AES_Class::SubstituteBytes(string** arr)
+string** AES_Encrypt::SubstituteBytes(string** arr)
 {
 	int val, val2;
 	string tempo;
@@ -384,19 +388,19 @@ string** AES_Class::SubstituteBytes(string** arr)
 //-----------------------------------------------------------------------------------------
 
 //-------------------------------------Shift Rows------------------------------------------
-void AES_Class::leftshift(string arr[], int size)
+void AES_Encrypt::leftshift(string arr[], int size)
 {
 	string temp = arr[0];
 	for (int i = 0; i < size - 1; i++)
 		arr[i] = arr[i + 1];
 	arr[size - 1] = temp;
 }
-void AES_Class::LeftShiftNtTime(string arr[], int size, int k)
+void AES_Encrypt::LeftShiftNtTime(string arr[], int size, int k)
 {
 	for (int i = 0; i < k; i++)
 		leftshift(arr, size);
 }
-string** AES_Class::ShiftRows(string** D2)
+string** AES_Encrypt::ShiftRows(string** D2)
 {
 	for (int i = 0; i < 4; i++)
 		LeftShiftNtTime(D2[i], 4, i);
@@ -405,7 +409,7 @@ string** AES_Class::ShiftRows(string** D2)
 //-----------------------------------------------------------------------------------------
 
 //-------------------------------------Mix Column------------------------------------------
-string** AES_Class::mixColumns(string** mt1, string** mt2)
+string** AES_Encrypt::mixColumns(string** mt1, string** mt2)
 {
 	string** muli = new string * [4];
 	for (int i = 0; i < 4; i++)
@@ -465,17 +469,18 @@ string** AES_Class::mixColumns(string** mt1, string** mt2)
 // 
 // 
 //-------------------------------------Encrypt---------------------------------------------
-void AES_Class::Encrypt(string key, string plaintext)
+void AES_Encrypt::Encrypt(string key, string plaintext)
 {
 	key = ASCIItoHEX(key);
 	plaintext = ASCIItoHEX(plaintext);
+	//key = "000102030405060708090a0b0c0d0e0f";
+	//plaintext = "00112233445566778899aabbccddeeff";
 	generate_round_keys(key);            //generating round keys AES-128(10), AES-256(16)
 	printKeys();
 
 	string** stateMatrix = AddRoundKey(plaintext, key);
 	cout << "\n\n\n\n\t\t\t\t\tState Matrix    Round 0 \n\t\t\t\t\t";
 	printMatrix(stateMatrix);
-
 
 	string** fixedMat = new string * [4];
 	for (int i = 0; i < 4; i++)
@@ -499,7 +504,7 @@ void AES_Class::Encrypt(string key, string plaintext)
 	///--------------------------------------Round 2-------------------------------------------------
 	int v = 0;
 	if (getKeysize() == 256)
-		v = 14;
+		v = 13;
 	else
 		v = 9;
 	for (int i = 2; i <= v; i++)
@@ -514,11 +519,14 @@ void AES_Class::Encrypt(string key, string plaintext)
 		rk = AddRoundKey(twoDto1dCV(mixColumns(fixedMat, ShiftRows(SubstituteBytes(rk)))), getKeys()[i]);
 		printMatrix(rk);
 	}
+	int lastkey = 10;
+	if (keysize == 256)
+		lastkey = 14;
 	cout << "\n\n\n\n\t\t\t\t\tByte Sustituted    Round last \n\t\t\t\t\t";
 	printMatrix(SubstituteBytes(rk));
 	cout << "\n\n\n\n\t\t\t\t\tLeft Shifted       Round last \n\t\t\t\t\t";
 	printMatrix(ShiftRows(SubstituteBytes(rk)));
 	cout << "\n\n\n\n\t\t\t\t\tAdd Round Key      Round last \n\t\t\t\t\t";
-	rk = AddRoundKey(twoDto1dCV(ShiftRows(SubstituteBytes(rk))), getKeys()[10]);
+	rk = AddRoundKey(twoDto1dCV(ShiftRows(SubstituteBytes(rk))), getKeys()[lastkey]);
 	printMatrix(rk);
 }

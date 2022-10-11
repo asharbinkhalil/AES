@@ -4,7 +4,7 @@
 #include <bitset>
 #include <Windows.h>
 using namespace std;
-class AES_Class
+class AES_Encrypt
 {
 	int keysize;
 	string w[60];
@@ -79,8 +79,8 @@ public:
 	//-------------------------------------Mix Column------------------------------------------
 	string** mixColumns(string** mt1, string** mt2);
 	//-----------------------------------------------------------------------------------------
-	// 
-	// 
+	
+
 	//-------------------------------------Encrypt---------------------------------------------
 	void Encrypt(string key, string plaintext);
 };
