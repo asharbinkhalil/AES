@@ -1,4 +1,4 @@
-#include "AES_Class.h"
+#include "Encrypt.h"
 //--------------------------------------Getter Setters-------------------------------------
 void AES_Class::setKeysize(int size)
 {

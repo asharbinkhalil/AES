@@ -139,11 +139,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AES_Class.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="AES\Encrypt.cpp" />
+    <ClCompile Include="AES\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AES_Class.h" />
+    <ClInclude Include="AES\Encrypt.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
