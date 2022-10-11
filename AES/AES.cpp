@@ -1,4 +1,4 @@
-#include "Encrypt.h"
+#include "AES.h"
 //--------------------------------------Getter Setters-------------------------------------
 void AES_Encrypt::setKeysize(int size)
 {
@@ -37,14 +37,6 @@ string AES_Encrypt::toHex(string bin)
 	string hexVal(ss.str());
 	if (hexVal.length() == 1)
 		hexVal = "0" + hexVal;
-	
-	//if (hexVal.length()== 3)
-	//{
-	//	hexVal = hexVal.substr(1, 2);
-	//	hexVal = toHex(Xor_binaries(toBinary(hexVal), toBinary("1b")));
-	//	cout << "|" << hexVal << "|\n";
-	//}
-	
 	return hexVal;
 }
 string AES_Encrypt::toBinary(const string& s) {
@@ -72,7 +64,7 @@ string AES_Encrypt::Xor_binaries(string bin1, string bin2)
 	return output;
 }
 
-void AES_Encrypt::func()
+char AES_Encrypt::func()
 {
 	cout << "\t\t\t\t------------------- ASHAR KHALIL----------------------\n";
 	cout << "\t\t\t\t-------------	      20K - 1724         --------------\n";
@@ -83,6 +75,16 @@ void AES_Encrypt::func()
 	cout << "\n\t\t\t\t\t| -> Loads data from a file.           |";
 	cout << "\n\t\t\t\t\t| -> Generate Keys.                    |";
 	cout << "\n\t\t\t\t\t/--------------------------------------/\n\n\n\n";
+	char choice='a';
+	cout << "\n\t\t\t\t\tEnter you choice: E for Encryption D for Decryption\n\t\t\t\t\t";
+	while (choice != 'E' && choice != 'D' && choice != 'B')
+	{	
+		cin >> choice;
+		if (choice != 'E' && choice != 'D' && choice != 'B')
+			cout << "\n\t\t\t\t\tPlease Enter Valid Choice: E for Encryption D for Decryption\n\t\t\t\t\t";
+	}
+	return choice;
+
 }
 void AES_Encrypt::printMatrix(string** arr)
 {
@@ -90,7 +92,6 @@ void AES_Encrypt::printMatrix(string** arr)
 	{
 		for (int j = 0; j < 4; j++)
 			cout << arr[j][i];
-		
 	}
 	cout << "\n\t\t\t\t\t";
 }
@@ -113,12 +114,45 @@ string AES_Encrypt::twoDto1dCV(string** arr)
 			oned += arr[j][i];
 	return oned;
 }
+string AES_Encrypt::galois(int a, int b) {
 
+	int p = 0;
+	while (b) {
+		if (b & 1) {
+			p ^= a;
+		}
+
+		a <<= 1;
+		if (a & 0x100)
+			a ^= 0x1b;
+		b >>= 1;
+	}
+	p = p & 0xff;
+	std::ostringstream sso;
+	sso << std::hex << p;
+	return sso.str();
+}
+string AES_Encrypt::hexToASCII(string hex)
+{
+	string ascii = "";
+	for (size_t i = 0; i < hex.length(); i += 2)
+	{
+		string part = hex.substr(i, 2);
+		char ch = stoul(part, nullptr, 16);
+		ascii += ch;
+	}
+	return ascii;
+}
 //-----------------------------------------------------------------------------------------
 
 //--------------------------------------Input functions------------------------------------
 string AES_Encrypt::keyInput()
 {
+	int ks = 0;
+	cout << "\n\t\t\t\t\tEnter key Size:  (128 or 256)\n\t\t\t\t\t";
+	cin >> ks;
+	cin.ignore();
+	setKeysize(ks);
 	int n = 0;
 	if (keysize == 256)
 		n = 32;
@@ -354,7 +388,7 @@ string** AES_Encrypt::AddRoundKey(string plaintext, string key)
 //----------------------------------------------------------------------------------------- 
 
 //-------------------------------------Substitute Bytes------------------------------------
-string** AES_Encrypt::SubstituteBytes(string** arr)
+string** AES_Encrypt::SubstituteBytes(string** arr,char c='e')
 {
 	int val, val2;
 	string tempo;
@@ -371,8 +405,10 @@ string** AES_Encrypt::SubstituteBytes(string** arr)
 			val3 = arr[i][j];
 			val = charHextoint(val3[0]);
 			val2 = charHextoint(val3[1]);
-
+			if(c=='e')
 			sso << std::hex << sbox[val][val2];
+			else
+			sso << std::hex << inv_sbox[val][val2];
 			tempo = sso.str();
 			if (tempo.length() == 1)
 				tempo = '0' + sso.str();
@@ -400,10 +436,13 @@ void AES_Encrypt::LeftShiftNtTime(string arr[], int size, int k)
 	for (int i = 0; i < k; i++)
 		leftshift(arr, size);
 }
-string** AES_Encrypt::ShiftRows(string** D2)
+string** AES_Encrypt::ShiftRows(string** D2,char c)
 {
+	int n=0;
+	if (c == 'd')
+		n = 4;
 	for (int i = 0; i < 4; i++)
-		LeftShiftNtTime(D2[i], 4, i);
+		LeftShiftNtTime(D2[abs(n-i)], 4, i);
 	return D2;
 }
 //-----------------------------------------------------------------------------------------
@@ -416,20 +455,17 @@ string** AES_Encrypt::mixColumns(string** mt1, string** mt2)
 		muli[i] = new string[4];
 	string mul[4][4];
 	string temp, temp2, t1;
+	int tempo,tempo2;
 	for (int i = 0; i < 4; i++)
 	{
-		if (i == 1)
-			i = i;
 		for (int j = 0; j < 4; j++)
 		{
 			mul[i][j] = "";
-			if (i == 1)
-				i = i;
 			for (int k = 0; k < 4; k++)
 			{
 				t1 = "";
 				temp2 = "";
-				if (mt1[i][k] == "01")
+				/*if (mt1[i][k] == "01")
 					t1 = mt2[k][j];
 				if (mt1[i][k] == "02")
 				{
@@ -452,7 +488,11 @@ string** AES_Encrypt::mixColumns(string** mt1, string** mt2)
 					t1 = toHex(Xor_binaries(toBinary(t1), toBinary(mt2[k][j])));
 					if (temp[0] == '1')
 						t1 = toHex(Xor_binaries(toBinary(t1), "00011011"));
-				}
+				}*/
+				tempo = (16 * charHextoint(mt1[i][k][0])) + (1 * charHextoint(mt1[i][k][1]));
+				tempo2= (16 * charHextoint(mt2[k][j][0])) + (1 * charHextoint(mt2[k][j][1]));
+
+				t1 = galois(tempo, tempo2);
 				if (!mul[i][j].size())
 					mul[i][j] = t1;
 				else
@@ -466,21 +506,18 @@ string** AES_Encrypt::mixColumns(string** mt1, string** mt2)
 	return muli;
 }
 //-----------------------------------------------------------------------------------------
-// 
-// 
+
+
 //-------------------------------------Encrypt---------------------------------------------
-void AES_Encrypt::Encrypt(string key, string plaintext)
+string AES_Encrypt::Encrypt(string key, string plaintext)
 {
 	key = ASCIItoHEX(key);
 	plaintext = ASCIItoHEX(plaintext);
-	//key = "000102030405060708090a0b0c0d0e0f";
+	//key = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f";
 	//plaintext = "00112233445566778899aabbccddeeff";
 	generate_round_keys(key);            //generating round keys AES-128(10), AES-256(16)
 	printKeys();
-
-	string** stateMatrix = AddRoundKey(plaintext, key);
-	cout << "\n\n\n\n\t\t\t\t\tState Matrix    Round 0 \n\t\t\t\t\t";
-	printMatrix(stateMatrix);
+	string** stateMatrix = AddRoundKey(plaintext, keys[0]);
 
 	string** fixedMat = new string * [4];
 	for (int i = 0; i < 4; i++)
@@ -488,45 +525,54 @@ void AES_Encrypt::Encrypt(string key, string plaintext)
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
 			fixedMat[i][j] = fixedMatrix[i][j];
-	////-------------------------------------Round 1-------------------------------------------------
-	string** ss = SubstituteBytes(stateMatrix);
-	cout << "\n\n\n\n\t\t\t\t\tByte Sustituted Round 1 \n\t\t\t\t\t";
-	printMatrix(ss);
-	cout << "\n\n\n\n\t\t\t\t\tLeft Shifted    Round 1 \n\t\t\t\t\t";
-	string** shiftedrows = ShiftRows(ss);
-	printMatrix(shiftedrows);
-
-	cout << "\n\n\n\n\t\t\t\t\tMixed Columns   Round 1 \n\t\t\t\t\t";
-	printMatrix(mixColumns(fixedMat, shiftedrows));
-	cout << "\n\n\n\n\t\t\t\t\tAdd Round Key   Round 1 \n\t\t\t\t\t";
-	string** rk = AddRoundKey(twoDto1dCV(mixColumns(fixedMat, shiftedrows)), getKeys()[1]);
-	printMatrix(rk);
-	///--------------------------------------Round 2-------------------------------------------------
+	string** rk = stateMatrix;
 	int v = 0;
 	if (getKeysize() == 256)
-		v = 13;
+		v = 14;
 	else
-		v = 9;
-	for (int i = 2; i <= v; i++)
+		v = 10;
+	for (int i = 1; i <= v; i++)
 	{
-		cout << "\n\n\n\n\t\t\t\t\tByte Sustituted Round " << i << "\n\t\t\t\t\t";
-		printMatrix(SubstituteBytes(rk));
-		cout << "\n\n\n\n\t\t\t\t\tLeft Shifted    Round " << i << " \n\t\t\t\t\t";
-		printMatrix(ShiftRows(SubstituteBytes(rk)));
-		cout << "\n\n\n\n\t\t\t\t\tMixed Columns   Round " << i << " \n\t\t\t\t\t";
-		printMatrix(mixColumns(fixedMat, ShiftRows(SubstituteBytes(rk))));
-		cout << "\n\n\n\n\t\t\t\t\tAdd Round Key   Round " << i << " \n\t\t\t\t\t";
-		rk = AddRoundKey(twoDto1dCV(mixColumns(fixedMat, ShiftRows(SubstituteBytes(rk)))), getKeys()[i]);
-		printMatrix(rk);
+		rk = SubstituteBytes(rk);
+		rk = ShiftRows(rk, 'e');
+		if (i < v)
+			rk = mixColumns(fixedMat, rk);
+		rk = AddRoundKey(twoDto1dCV(rk), getKeys()[i]);
 	}
-	int lastkey = 10;
-	if (keysize == 256)
-		lastkey = 14;
-	cout << "\n\n\n\n\t\t\t\t\tByte Sustituted    Round last \n\t\t\t\t\t";
-	printMatrix(SubstituteBytes(rk));
-	cout << "\n\n\n\n\t\t\t\t\tLeft Shifted       Round last \n\t\t\t\t\t";
-	printMatrix(ShiftRows(SubstituteBytes(rk)));
-	cout << "\n\n\n\n\t\t\t\t\tAdd Round Key      Round last \n\t\t\t\t\t";
-	rk = AddRoundKey(twoDto1dCV(ShiftRows(SubstituteBytes(rk))), getKeys()[lastkey]);
-	printMatrix(rk);
+	string ct="";
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			ct += rk[j][i];
+	return ct;
+}
+string AES_Encrypt::Decrypt(string cipher)
+{
+	string** m = new string * [4];
+	for (int i = 0; i < 4; i++)
+		m[i] = new string[4];
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+			m[i][j] = fixedMatrixd[i][j];
+	string** c;
+	int ku;
+	if (getKeysize() == 256)
+		ku = 14;
+	else
+		ku = 10;
+	c = AddRoundKey(cipher, getKeys()[ku]);
+	for (int i = 1; i <= 14; i++)
+	{
+		ku--;
+		c = ShiftRows(c, 'd');
+		printMatrix(c);
+		c = SubstituteBytes(c, 'd');
+		printMatrix(c);
+		c = AddRoundKey(twoDto1dCV(c),getKeys()[ku]);
+		printMatrix(c);
+		if (i != 14)
+			c = mixColumns(m, c);
+		printMatrix(c);
+	}
+	string pt = twoDto1dCV(c);
+	return pt;
 }
