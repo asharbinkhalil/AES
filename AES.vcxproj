@@ -146,9 +146,8 @@
     <ClInclude Include="AES\AES.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="main\CipherText.txt" />
+    <Text Include="main\Text.txt" />
     <Text Include="main\Key.txt" />
-    <Text Include="main\PlainText.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

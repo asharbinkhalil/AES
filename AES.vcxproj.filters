@@ -28,8 +28,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="main\PlainText.txt" />
     <Text Include="main\Key.txt" />
-    <Text Include="main\CipherText.txt" />
+    <Text Include="main\Text.txt" />
   </ItemGroup>
 </Project>

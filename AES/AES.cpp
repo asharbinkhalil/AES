@@ -88,12 +88,15 @@ char AES_Encrypt::func()
 }
 void AES_Encrypt::printMatrix(string** arr)
 {
+	cout << "\n\t\t\t\t\t";
 	for (int i = 0; i < 4; i++)
 	{
 		for (int j = 0; j < 4; j++)
-			cout << arr[j][i];
+			cout << arr[j][i]<<" ";
+		cout << "\n\t\t\t\t\t";
 	}
-	cout << "\n\t\t\t\t\t";
+	cout << "\n";
+	
 }
 int AES_Encrypt::charHextoint(char c)
 {
@@ -149,15 +152,18 @@ string AES_Encrypt::hexToASCII(string hex)
 string AES_Encrypt::keyInput()
 {
 	int ks = 0;
-	cout << "\n\t\t\t\t\tEnter key Size:  (128 or 256)\n\t\t\t\t\t";
+	cout << "\n\t\t\t\t\tEnter key Size:  (128 | 192 | 256)\n\t\t\t\t\t";
 	cin >> ks;
 	cin.ignore();
 	setKeysize(ks);
 	int n = 0;
 	if (keysize == 256)
 		n = 32;
-	else
+	else if (keysize == 128)
 		n = 16;
+	else
+		n = 24;
+
 	string dummyinput, keyinput;
 	while (dummyinput.length() < n)//exception handling for key length
 	{
@@ -265,10 +271,13 @@ void AES_Encrypt::printKeys()
 	int n = 0;
 	if (keysize == 256)
 		n = 15;
-	else
+	else if (keysize == 128)
 		n = 11;
+	else
+		n = 13;
 	for (int i = 0; i < n; i++)
 		cout << "\n\t\t\t\tKey " << i << (i < 10 ? " : " : ": ") << keys[i];
+	cout << "\n";
 
 }
 void AES_Encrypt::generate_round_keys(string key)
@@ -277,8 +286,10 @@ void AES_Encrypt::generate_round_keys(string key)
 	int rounds = 0, quads = 0, w_count = 0;
 	if (keysize == 256)
 		rounds = 14, quads = 7, w_count = 60;
-	else
+	else if (keysize == 128)
 		rounds = 10, quads = 3, w_count = 44;
+	else
+		rounds = 12, quads = 6, w_count = 52;
 	for (int i = 0; i < key.length(); i++)
 	{
 		if (count < 8)
@@ -513,11 +524,13 @@ string AES_Encrypt::Encrypt(string key, string plaintext)
 {
 	key = ASCIItoHEX(key);
 	plaintext = ASCIItoHEX(plaintext);
-	//key = "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f";
+	//key = "000102030405060708090a0b0c0d0e0f1011121314151617";
 	//plaintext = "00112233445566778899aabbccddeeff";
 	generate_round_keys(key);            //generating round keys AES-128(10), AES-256(16)
 	printKeys();
+	cout << "\n\t\t\t\tAdd round Key Round 0 \n";
 	string** stateMatrix = AddRoundKey(plaintext, keys[0]);
+	printMatrix(stateMatrix);
 
 	string** fixedMat = new string * [4];
 	for (int i = 0; i < 4; i++)
@@ -534,10 +547,21 @@ string AES_Encrypt::Encrypt(string key, string plaintext)
 	for (int i = 1; i <= v; i++)
 	{
 		rk = SubstituteBytes(rk);
+		cout << "\n\t\t\t\tSusbstitute Bytes Round " << i <<"\n";
+		printMatrix(rk);
 		rk = ShiftRows(rk, 'e');
+		cout << "\n\t\t\t\tShifted Rows      Round " << i << "\n";
+		printMatrix(rk);
 		if (i < v)
+		{
 			rk = mixColumns(fixedMat, rk);
+			cout << "\n\t\t\t\tMixed Columns     Round " << i << "\n";
+			printMatrix(rk);
+
+		}
 		rk = AddRoundKey(twoDto1dCV(rk), getKeys()[i]);
+		cout << "\n\t\t\t\tAdded round key   Round " << i << "\n";
+		printMatrix(rk);
 	}
 	string ct="";
 	for (int i = 0; i < 4; i++)
@@ -554,13 +578,13 @@ string AES_Encrypt::Decrypt(string cipher)
 		for (int j = 0; j < 4; j++)
 			m[i][j] = fixedMatrixd[i][j];
 	string** c;
-	int ku;
+	int ku,ks;
 	if (getKeysize() == 256)
-		ku = 14;
+		ku = 14,ks=14;
 	else
-		ku = 10;
+		ku = 10,ks=10;
 	c = AddRoundKey(cipher, getKeys()[ku]);
-	for (int i = 1; i <= 14; i++)
+	for (int i = 1; i <= ks; i++)
 	{
 		ku--;
 		c = ShiftRows(c, 'd');
@@ -569,9 +593,11 @@ string AES_Encrypt::Decrypt(string cipher)
 		printMatrix(c);
 		c = AddRoundKey(twoDto1dCV(c),getKeys()[ku]);
 		printMatrix(c);
-		if (i != 14)
+		if (i != ks)
+		{
 			c = mixColumns(m, c);
-		printMatrix(c);
+			printMatrix(c);
+		}
 	}
 	string pt = twoDto1dCV(c);
 	return pt;
