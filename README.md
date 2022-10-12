@@ -33,7 +33,8 @@ Press E for Decryption and its visualization<br />
 #Keys generated and visalization process is shown in terminal<br />
 ![image](https://user-images.githubusercontent.com/68750622/195325162-39c66caf-2777-49d8-ba8d-7646d2db2873.png)
 All rounds shown like this<br />
-![image](https://user-images.githubusercontent.com/68750622/195325324-ff5df226-cb40-4c8c-8ea6-905636c2297a.png)
+![image](https://user-images.githubusercontent.com/68750622/195328904-95539774-05ff-4b3d-bacf-d6083bdefb3e.png)
+
 
 #TEXT is Changed in file after encryption<br />
 ![image](https://user-images.githubusercontent.com/68750622/195325458-e6f3605d-74a6-449b-98bd-b7bcf24a5852.png)
