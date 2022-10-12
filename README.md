@@ -1,10 +1,10 @@
 # AES-Implementaion
-------------------- ASHAR KHALIL----------------------
--------------	      20K - 1724         ---------------
---------------- Number Theory & Crypto ---------------
--------------    AES Implementation    ---------------
-    /--------------------------------------/
-    |    Copyrights: Poor_logics by Ashar  |
+------------------- ASHAR KHALIL----------------------<br />
+-------------	      20K - 1724       ---------------<br />
+--------------- Number Theory & Crypto ---------------<br />
+-------------    AES Implementation    ---------------<br />
+          /--------------------------------------/
+          |    Copyrights: Poor_logics by Ashar  |
 	  | -> Loads data from a file.           |
 	  | -> Generate Keys.                    |
 	  | -> Show Visualization of Encryption  |
