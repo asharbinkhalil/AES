@@ -3,21 +3,21 @@
 -------------	      20K - 1724       ---------------<br />
 --------------- Number Theory & Crypto ---------------<br />
 -------------    AES Implementation    ---------------<br />
-          /--------------------------------------/
-          |    Copyrights: Poor_logics by Ashar  |
-	  | -> Loads data from a file.           |
-	  | -> Generate Keys.                    |
-	  | -> Show Visualization of Encryption  |
-	  | -> Show Visualization of Decryption  |
-	  | -> Change the file contents.  CT/PT  |
-	  /--------------------------------------/
+          /--------------------------------------/<br />
+          |    Copyrights: Poor_logics by Ashar  |<br />
+	  | -> Loads data from a file.           |<br />
+	  | -> Generate Keys.                    |<br />
+	  | -> Show Visualization of Encryption  |<br />
+	  | -> Show Visualization of Decryption  |<br />
+	  | -> Change the file contents.  CT/PT  |<br />
+	  /--------------------------------------/<br />
     
 # For 128 BITS AES
 Enter the 16 characters key in Key.txt
 # For 192 BITS AES
 Enter the 24 characters key in Key.txt
 # For 256 BITS AES
-Enter the 32 characters key in Key.txt<br />
+Enter the 32 characters key in Key.txt<br /><br /><br /><br /><br />
 ![image](https://user-images.githubusercontent.com/68750622/195323231-7e49508d-46e8-42d3-9dba-c323deced227.png)
 
 #Plaintext is Always 128 bit (NIST STANDARD)<br />
