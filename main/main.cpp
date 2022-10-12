@@ -6,11 +6,13 @@ int main()
 {	
 	AES_Encrypt a;
 	char choice = a.func();  //intro :)
-	fstream Fe;
+	
 	string key;
-	int s;
-	cin >> s;
-	a.setKeysize(s);
+	int ks = 0;
+	cout << "\n\t\t\t\t\tEnter key Size:  (128 | 192 | 256)\n\t\t\t\t\t";
+	cin >> ks;
+	a.setKeysize(ks);
+	fstream Fe;
 	Fe.open("main/Key.txt");
 	if (!Fe)
 		cout << "File doesn’t exist.";
@@ -24,7 +26,6 @@ int main()
 		FileName.open("main/Text.txt");
 		getline(FileName, plaintext);
 		FileName.close();
-		// plaintext = a.textInput();       // plaintext input
 		 ciphertext = a.Encrypt(key, plaintext);
 		 cout << "\nCipher text : START" <<ciphertext << "END";
 		 ofstream FileNam("main/Text.txt");
@@ -40,7 +41,6 @@ int main()
 		else
 			getline(FileName, ciphertext);
 		FileName.close();
-		//cout << ciphertext<<"||||" << ciphertext.length();
 		key = a.ASCIItoHEX(key);
 		a.generate_round_keys(key);
 		a.printKeys();
@@ -48,7 +48,6 @@ int main()
 		ofstream of("main/Text.txt");
 		of << plaintext;
 		of.close();
-
 	}
 	else
 	{

@@ -74,9 +74,12 @@ char AES_Encrypt::func()
 	cout << "\n\t\t\t\t\t|    Copyrights: Poor_logics by Ashar  | ";
 	cout << "\n\t\t\t\t\t| -> Loads data from a file.           |";
 	cout << "\n\t\t\t\t\t| -> Generate Keys.                    |";
-	cout << "\n\t\t\t\t\t/--------------------------------------/\n\n\n\n";
+	cout << "\n\t\t\t\t\t| -> Show Visualization of Encryption  |";
+	cout << "\n\t\t\t\t\t| -> Show Visualization of Decryption  |";
+	cout << "\n\t\t\t\t\t| -> Change the file contents.  CT/PT  |";
+	cout << "\n\t\t\t\t\t/--------------------------------------/\n";
 	char choice='a';
-	cout << "\n\t\t\t\t\tEnter you choice: E for Encryption D for Decryption\n\t\t\t\t\t";
+	cout << "\n\t\t\t\tEnter you choice: E for Encryption D for Decryption\n\t\t\t\t";
 	while (choice != 'E' && choice != 'D' && choice != 'B')
 	{	
 		cin >> choice;
@@ -528,8 +531,8 @@ string AES_Encrypt::Encrypt(string key, string plaintext)
 	//plaintext = "00112233445566778899aabbccddeeff";
 	generate_round_keys(key);            //generating round keys AES-128(10), AES-256(16)
 	printKeys();
-	cout << "\n\t\t\t\tAdd round Key Round 0 \n";
 	string** stateMatrix = AddRoundKey(plaintext, keys[0]);
+	cout << "\n\t\t\t\tAdded round Key Round 0 \n";
 	printMatrix(stateMatrix);
 
 	string** fixedMat = new string * [4];
@@ -547,20 +550,20 @@ string AES_Encrypt::Encrypt(string key, string plaintext)
 	for (int i = 1; i <= v; i++)
 	{
 		rk = SubstituteBytes(rk);
-		cout << "\n\t\t\t\tSusbstitute Bytes Round " << i <<"\n";
+		cout << "\n\t\t\t\t\tSusbstitute Bytes Round " << i <<"\n";
 		printMatrix(rk);
 		rk = ShiftRows(rk, 'e');
-		cout << "\n\t\t\t\tShifted Rows      Round " << i << "\n";
+		cout << "\n\t\t\t\t\tShifted Rows      Round " << i << "\n";
 		printMatrix(rk);
 		if (i < v)
 		{
 			rk = mixColumns(fixedMat, rk);
-			cout << "\n\t\t\t\tMixed Columns     Round " << i << "\n";
+			cout << "\n\t\t\t\t\tMixed Columns     Round " << i << "\n";
 			printMatrix(rk);
 
 		}
 		rk = AddRoundKey(twoDto1dCV(rk), getKeys()[i]);
-		cout << "\n\t\t\t\tAdded round key   Round " << i << "\n";
+		cout << "\n\t\t\t\t\tAdded round key   Round " << i << "\n";
 		printMatrix(rk);
 	}
 	string ct="";
@@ -584,18 +587,24 @@ string AES_Encrypt::Decrypt(string cipher)
 	else
 		ku = 10,ks=10;
 	c = AddRoundKey(cipher, getKeys()[ku]);
+	cout << "\n\t\t\t\t\tInverse Added round key   Round 0\n";
+	printMatrix(c);
 	for (int i = 1; i <= ks; i++)
 	{
 		ku--;
 		c = ShiftRows(c, 'd');
+		cout << "\n\t\t\t\t\tInverse Shifted Rows      Round " << i << "\n";
 		printMatrix(c);
 		c = SubstituteBytes(c, 'd');
+		cout << "\n\t\t\t\t\tInverse Susbstitute Bytes Round " << i << "\n";
 		printMatrix(c);
 		c = AddRoundKey(twoDto1dCV(c),getKeys()[ku]);
+		cout << "\n\t\t\t\t\tInverse Added round key   Round " << i << "\n";
 		printMatrix(c);
 		if (i != ks)
 		{
 			c = mixColumns(m, c);
+			cout << "\n\t\t\t\t\tInverse Mixed Columns     Round " << i << "\n";
 			printMatrix(c);
 		}
 	}
