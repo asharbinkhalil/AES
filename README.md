@@ -1,16 +1,16 @@
 # AES-Implementaion
-------------------- ASHAR KHALIL----------------------<br />
--------------	      20K - 1724       ---------------<br />
---------------- Number Theory & Crypto ---------------<br />
--------------    AES Implementation    ---------------<br />
-          /--------------------------------------/<br />
-          |    Copyrights: Poor_logics by Ashar  |<br />
-	  | -> Loads data from a file.           |<br />
-	  | -> Generate Keys.                    |<br />
-	  | -> Show Visualization of Encryption  |<br />
-	  | -> Show Visualization of Decryption  |<br />
-	  | -> Change the file contents.  CT/PT  |<br />
-	  /--------------------------------------/<br />
+------------ASHAR KHALIL<br />
+------------20K - 1724<br />
+------------Number Theory & Crypto<br />
+------------AES Implementation<br />
+/--------------------------------------<br />
+|    Copyrights: Poor_logics by Ashar  <br />
+| -> Loads data from a file.           <br />
+| -> Generate Keys.                    <br />
+| -> Show Visualization of Encryption  <br />
+| -> Show Visualization of Decryption  <br />
+| -> Change the file contents.  CT/PT  <br />
+/--------------------------------------/<br />
     
 # For 128 BITS AES
 Enter the 16 characters key in Key.txt
