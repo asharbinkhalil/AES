@@ -106,7 +106,6 @@ public:
 	string** mixColumns(string** mt1, string** mt2);
 	//-----------------------------------------------------------------------------------------
 
-
 	//-------------------------------------Encrypt---------------------------------------------
 	string Encrypt(string key, string plaintext);
 	string Decrypt(string cipher);

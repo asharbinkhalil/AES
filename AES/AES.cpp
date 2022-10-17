@@ -17,11 +17,21 @@ string AES_Encrypt::ASCIItoHEX(string ascii)
 {
 	stringstream ss;
 	string hexs;
-	for (const auto& item : ascii) {
+	for (const auto& item : ascii)
 		ss << hex << int(item);
-	}
 	hexs = ss.str();
 	return hexs;
+}
+string AES_Encrypt::hexToASCII(string hex)
+{
+	string ascii = "";
+	for (size_t i = 0; i < hex.length(); i += 2)
+	{
+		string part = hex.substr(i, 2);
+		char ch = stoul(part, nullptr, 16);
+		ascii += ch;
+	}
+	return ascii;
 }
 string AES_Encrypt::toHex(string bin)
 {
@@ -95,7 +105,7 @@ void AES_Encrypt::printMatrix(string** arr)
 	for (int i = 0; i < 4; i++)
 	{
 		for (int j = 0; j < 4; j++)
-			cout << arr[j][i]<<" ";
+			cout << arr[i][j]<<" ";
 		cout << "\n\t\t\t\t\t";
 	}
 	cout << "\n";
@@ -138,17 +148,7 @@ string AES_Encrypt::galois(int a, int b) {
 	sso << std::hex << p;
 	return sso.str();
 }
-string AES_Encrypt::hexToASCII(string hex)
-{
-	string ascii = "";
-	for (size_t i = 0; i < hex.length(); i += 2)
-	{
-		string part = hex.substr(i, 2);
-		char ch = stoul(part, nullptr, 16);
-		ascii += ch;
-	}
-	return ascii;
-}
+
 //-----------------------------------------------------------------------------------------
 
 //--------------------------------------Input functions------------------------------------
@@ -228,32 +228,21 @@ string AES_Encrypt::substiteBytesW(string w_last)
 }
 string AES_Encrypt::find_G(string w_last, int rc)
 {
-	reverse(w_last.begin(), w_last.begin() + 2);
-	reverse(w_last.begin() + 2, w_last.end());
-	reverse(w_last.begin(), w_last.end());
-
+	rotate(w_last.begin(), w_last.begin() + 2,w_last.end());
 	string gw_last, byte_substituted;
 	for (int i = 0; i < w_last.length(); i += 2)
 	{
-		int val = charHextoint(w_last[i]);
-		int val2 = charHextoint(w_last[i + 1]);
-
 		std::ostringstream sso;
-		sso << std::hex << sbox[val][val2];
+		sso << std::hex << sbox[charHextoint(w_last[i])][charHextoint(w_last[i + 1])];
 		string temp;
 		if (sso.str().length() == 1)
-		{
-			temp = '0';
-			temp += sso.str();
-			byte_substituted += temp;
-		}
+			byte_substituted += "0" + sso.str();
 		else
 			byte_substituted += sso.str();
 	}
-	string round_constant[14] = { "01000000","02000000","04000000","08000000",
+	string round_constant[10] = { "01000000","02000000","04000000","08000000",
 									"10000000","20000000","40000000","80000000",
-									"1b000000","36000000","6c000000","d8000000",
-									"AB000000","4d000000" };
+									"1b000000","36000000"};
 	round_constant[rc] = toBinary(round_constant[rc]);
 	byte_substituted = toBinary(byte_substituted);
 	gw_last = Xor_binaries(round_constant[rc], byte_substituted);
@@ -281,45 +270,29 @@ void AES_Encrypt::printKeys()
 	for (int i = 0; i < n; i++)
 		cout << "\n\t\t\t\tKey " << i << (i < 10 ? " : " : ": ") << keys[i];
 	cout << "\n";
-
 }
 void AES_Encrypt::generate_round_keys(string key)
 {
-	int j = 0, count = 0;
+	int j = 0, count = 0, init_w = 0;
 	int rounds = 0, quads = 0, w_count = 0;
 	if (keysize == 256)
-		rounds = 14, quads = 7, w_count = 60;
+		rounds = 14, quads = 7, w_count = 60,init_w=8;
 	else if (keysize == 128)
-		rounds = 10, quads = 3, w_count = 44;
-	else
-		rounds = 12, quads = 6, w_count = 52;
-	for (int i = 0; i < key.length(); i++)
-	{
-		if (count < 8)
-		{
-			w[j] += key[i];
-			count++;
-		}
-		else
-		{
-			count = 0;
-			j++;
-			i--;
-		}
-	}
-	int w_index = 0, r = 0;
-	int roundconst_c = 0;
-	count = 8;
-	int temp_length = 0;
-	string temp, temp2;
-	while (j < w_count)
-	{
-		if (roundconst_c == 8 && keysize == 256)
-			roundconst_c = 0;
+		rounds = 10, quads = 3, w_count = 44,init_w = 4;
+	else 
+		rounds = 12, quads = 6, w_count = 52,init_w = 5;
 
-		j++;
-		w[j] = Xor_binaries(toBinary(find_G(w[j - 1], roundconst_c++)), toBinary(w[w_index++]));
-		w[j] = toHex(w[j]);
+	int kl = 0;
+	for (j = 0; j < init_w; j++, kl += 8)
+		w[j] = key.substr(kl, 8);
+	j--;
+	int w_index = 0, r = 0, roundconst_c = 0, temp_length=0;
+	count = 8;
+	string temp, temp2;
+	while (j++ < w_count)
+	{
+		cout << roundconst_c;
+		w[j] = toHex(Xor_binaries(toBinary(find_G(w[j - 1], roundconst_c++)), toBinary(w[w_index++])));
 		temp_length = w[j].length();
 		if (temp_length < 8)
 		{
@@ -354,12 +327,12 @@ void AES_Encrypt::generate_round_keys(string key)
 		}
 	}
 	int k = 0;
-	for (int i = 0; i < 15; i++)
-		for (int j = 0; j < 4; j++)
-			keys[i] = "";
-	for (int i = 0; i < 15; i++)
+	for (int i = 0; i < 15; i++) 
+	{
+		keys[i] = "";
 		for (int j = 0; j < 4; j++, k++)
-			keys[i] += w[k];
+				keys[i] += w[k];
+	}
 }
 //-----------------------------------------------------------------------------------------
 
@@ -371,9 +344,8 @@ string** AES_Encrypt::GenerateStateMatrix(string str)
 		ptr[i] = new string[4];
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
-		{
 			ptr[j][i] = str.substr(i * 8 + j * 2, 2);
-		}
+
 	return ptr;
 }
 string** AES_Encrypt::AddRoundKey(string plaintext, string key)
@@ -385,7 +357,6 @@ string** AES_Encrypt::AddRoundKey(string plaintext, string key)
 		stateMat[i] = new string[4];
 
 	string temp;
-
 	for (int i = 0; i < 4; i++)
 	{
 		for (int j = 0; j < 4; j++)
@@ -477,35 +448,9 @@ string** AES_Encrypt::mixColumns(string** mt1, string** mt2)
 			mul[i][j] = "";
 			for (int k = 0; k < 4; k++)
 			{
-				t1 = "";
-				temp2 = "";
-				/*if (mt1[i][k] == "01")
-					t1 = mt2[k][j];
-				if (mt1[i][k] == "02")
-				{
-					temp = toBinary(mt2[k][j]);
-					for (int i = 1; i < temp.length(); i++)
-						temp2 += temp[i];
-					temp2 += "0";
-					t1 = toHex(temp2);
-					if (temp[0] == '1')
-						t1 = toHex(Xor_binaries(toBinary(t1), "00011011"));
-				}
-				if (mt1[i][k] == "03")
-				{
-					temp = toBinary(mt2[k][j]);
-
-					for (int i = 1; i < temp.length(); i++)
-						temp2 += temp[i];
-					temp2 += "0";
-					t1 = toHex(temp2);
-					t1 = toHex(Xor_binaries(toBinary(t1), toBinary(mt2[k][j])));
-					if (temp[0] == '1')
-						t1 = toHex(Xor_binaries(toBinary(t1), "00011011"));
-				}*/
+				t1 = "",temp2 = "";
 				tempo = (16 * charHextoint(mt1[i][k][0])) + (1 * charHextoint(mt1[i][k][1]));
 				tempo2= (16 * charHextoint(mt2[k][j][0])) + (1 * charHextoint(mt2[k][j][1]));
-
 				t1 = galois(tempo, tempo2);
 				if (!mul[i][j].size())
 					mul[i][j] = t1;
@@ -527,12 +472,12 @@ string AES_Encrypt::Encrypt(string key, string plaintext)
 {
 	key = ASCIItoHEX(key);
 	plaintext = ASCIItoHEX(plaintext);
-	//key = "000102030405060708090a0b0c0d0e0f1011121314151617";
+	//key =       "000102030405060708090a0b0c0d0e0f1011121314151617";
 	//plaintext = "00112233445566778899aabbccddeeff";
 	generate_round_keys(key);            //generating round keys AES-128(10), AES-256(16)
 	printKeys();
 	string** stateMatrix = AddRoundKey(plaintext, keys[0]);
-	cout << "\n\t\t\t\tAdded round Key Round 0 \n";
+	cout << "\n\t\t\t\t\tAdded round Key Round 0 \n";
 	printMatrix(stateMatrix);
 
 	string** fixedMat = new string * [4];
@@ -545,8 +490,10 @@ string AES_Encrypt::Encrypt(string key, string plaintext)
 	int v = 0;
 	if (getKeysize() == 256)
 		v = 14;
-	else
+	else if (getKeysize() == 128)
 		v = 10;
+	else
+		v = 12;
 	for (int i = 1; i <= v; i++)
 	{
 		rk = SubstituteBytes(rk);
@@ -583,22 +530,23 @@ string AES_Encrypt::Decrypt(string cipher)
 	string** c;
 	int ku,ks;
 	if (getKeysize() == 256)
-		ku = 14,ks=14;
+		ku = 14, ks = 14;
+	else if (getKeysize() == 128)
+		ku = 10, ks = 10;
 	else
-		ku = 10,ks=10;
+		ku = 12, ks = 12;
 	c = AddRoundKey(cipher, getKeys()[ku]);
-	cout << "\n\t\t\t\t\tInverse Added round key   Round 0\n";
+	cout << "\n\t\t\t\t\t\tInverse Added round key   Round 0\n";
 	printMatrix(c);
 	for (int i = 1; i <= ks; i++)
 	{
-		ku--;
 		c = ShiftRows(c, 'd');
 		cout << "\n\t\t\t\t\tInverse Shifted Rows      Round " << i << "\n";
 		printMatrix(c);
 		c = SubstituteBytes(c, 'd');
 		cout << "\n\t\t\t\t\tInverse Susbstitute Bytes Round " << i << "\n";
 		printMatrix(c);
-		c = AddRoundKey(twoDto1dCV(c),getKeys()[ku]);
+		c = AddRoundKey(twoDto1dCV(c),getKeys()[--ku]);
 		cout << "\n\t\t\t\t\tInverse Added round key   Round " << i << "\n";
 		printMatrix(c);
 		if (i != ks)
