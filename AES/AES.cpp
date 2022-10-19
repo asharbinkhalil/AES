@@ -472,8 +472,8 @@ string AES_Encrypt::Encrypt(string key, string plaintext)
 {
 	key = ASCIItoHEX(key);
 	plaintext = ASCIItoHEX(plaintext);
-	//key =       "000102030405060708090a0b0c0d0e0f1011121314151617";
-	//plaintext = "00112233445566778899aabbccddeeff";
+	key =       "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f";
+	plaintext = "00112233445566778899aabbccddeeff";
 	generate_round_keys(key);            //generating round keys AES-128(10), AES-256(16)
 	printKeys();
 	string** stateMatrix = AddRoundKey(plaintext, keys[0]);
