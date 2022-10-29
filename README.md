@@ -4,7 +4,7 @@
 ------------Number Theory & Crypto<br />
 ------------AES Implementation<br />
 /--------------------------------------<br />
-|    Copyrights: Poor_logics by Ashar  <br />
+|    Copyrights:  Ashar                <br />
 | -> Loads data from a file.           <br />
 | -> Generate Keys.                    <br />
 | -> Show Visualization of Encryption  <br />
